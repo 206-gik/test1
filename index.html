@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이영준 디자인 스튜디오</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background-image:
+                linear-gradient(rgba(10, 12, 20, 0.75), rgba(10, 12, 20, 0.75)),
+                url('https://images.unsplash.com/photo-1502810190503-8303352d0dd1?fm=jpg&q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .chat-card {
+            background: #ffffff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 680px;
+            height: calc(100vh - 48px);
+            max-height: 820px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 28px 32px 22px;
+            border-bottom: 2px solid #f0f0f0;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #eef3ff;
+            color: #0057ff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        .chat-header h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0a0a0a;
+            letter-spacing: -0.3px;
+            margin-bottom: 4px;
+        }
+
+        .chat-header p {
+            font-size: 0.88rem;
+            color: #888;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .messages::-webkit-scrollbar { width: 4px; }
+        .messages::-webkit-scrollbar-track { background: #f5f5f5; }
+        .messages::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .message.user { flex-direction: row-reverse; }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .message.assistant .avatar { background: #0057ff; color: white; }
+        .message.user .avatar { background: #f0f0f0; color: #555; }
+
+        .bubble {
+            max-width: 75%;
+            padding: 13px 17px;
+            font-size: 0.95rem;
+            line-height: 1.75;
+            color: #1a1a1a;
+            word-break: break-word;
+        }
+
+        .message.assistant .bubble {
+            background: #f7f9ff;
+            border-left: 3px solid #0057ff;
+            border-radius: 4px 16px 16px 16px;
+        }
+
+        .message.user .bubble {
+            background: #0057ff;
+            color: white;
+            border-radius: 16px 4px 16px 16px;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            padding: 2px 0;
+        }
+
+        .loading-dots span {
+            width: 7px;
+            height: 7px;
+            background: #0057ff;
+            border-radius: 50%;
+            animation: bounce 1.2s infinite;
+            opacity: 0.4;
+        }
+
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-7px); opacity: 1; }
+        }
+
+        .input-area {
+            padding: 14px 28px 22px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        textarea {
+            flex: 1;
+            border: 2px solid #e4e4e4;
+            border-radius: 14px;
+            padding: 13px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: #1a1a1a;
+            background: #fafafa;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+            max-height: 120px;
+            overflow-y: auto;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        textarea:focus {
+            border-color: #0057ff;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 87, 255, 0.1);
+        }
+
+        textarea::placeholder { color: #bbb; }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            background: #0057ff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .send-btn:hover { background: #0040cc; transform: translateY(-1px); }
+        .send-btn:active { transform: translateY(0); }
+        .send-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+        .send-btn svg { width: 20px; height: 20px; fill: white; }
+
+        @media (max-width: 480px) {
+            body { padding: 0; }
+            .chat-card { border-radius: 0; height: 100vh; max-height: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-card">
+        <div class="chat-header">
+            <div class="badge">DESIGN STUDIO</div>
+            <h1>이영준 디자인 스튜디오</h1>
+            <p>상세페이지 · 로고 디자인 문의를 도와드립니다</p>
+        </div>
+
+        <div class="messages" id="messages">
+            <div class="message assistant">
+                <div class="avatar">YJ</div>
+                <div class="bubble">안녕하세요 👋 이영준 디자인 스튜디오입니다. 가격, 일정, 수정 횟수 등 궁금한 점을 편하게 물어보세요!</div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <textarea id="input" placeholder="궁금한 점을 입력하세요..." rows="1"></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const messagesEl = document.getElementById('messages');
+        const inputEl = document.getElementById('input');
+        const sendBtn = document.getElementById('sendBtn');
+        let history = [];
+
+        inputEl.addEventListener('input', () => {
+            inputEl.style.height = 'auto';
+            inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+        });
+
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function scrollToBottom() {
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function addMessage(role, content) {
+            const wrap = document.createElement('div');
+            wrap.className = `message ${role}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = role === 'assistant' ? 'YJ' : '나';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.textContent = content;
+
+            wrap.appendChild(avatar);
+            wrap.appendChild(bubble);
+            messagesEl.appendChild(wrap);
+            scrollToBottom();
+        }
+
+        function showLoading() {
+            const wrap = document.createElement('div');
+            wrap.className = 'message assistant';
+            wrap.id = 'loading';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = 'YJ';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+
+            wrap.appendChild(avatar);
+            wrap.appendChild(bubble);
+            messagesEl.appendChild(wrap);
+            scrollToBottom();
+        }
+
+        function hideLoading() {
+            const el = document.getElementById('loading');
+            if (el) el.remove();
+        }
+
+        async function sendMessage() {
+            const question = inputEl.value.trim();
+            if (!question || sendBtn.disabled) return;
+
+            inputEl.value = '';
+            inputEl.style.height = 'auto';
+            sendBtn.disabled = true;
+
+            addMessage('user', question);
+            history.push({ role: 'user', content: question });
+            showLoading();
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question, history: history.slice(0, -1) })
+                });
+
+                const data = await res.json();
+                hideLoading();
+
+                const reply = data.reply || '죄송해요, 잠시 오류가 발생했어요. 다시 시도해주세요 🙏';
+                addMessage('assistant', reply);
+                history.push({ role: 'assistant', content: reply });
+
+            } catch (e) {
+                hideLoading();
+                addMessage('assistant', '연결에 문제가 생겼어요. 잠시 후 다시 시도해주세요 🙏');
+            }
+
+            sendBtn.disabled = false;
+            inputEl.focus();
+        }
+    </script>
+</body>
+</html>
