@@ -39,6 +39,10 @@ module.exports = async (req, res) => {
   const { question, history = [] } = req.body;
   if (!question) return res.status(400).json({ error: "No question" });
 
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ error: "GROQ_API_KEY가 설정되지 않았습니다. Vercel 환경변수를 확인해주세요." });
+  }
+
   try {
     const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -66,6 +70,7 @@ module.exports = async (req, res) => {
 
     res.json({ reply });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error("API 오류:", e);
+    res.status(500).json({ error: e.message || "알 수 없는 오류" });
   }
 };
