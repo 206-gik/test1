@@ -1,12 +1,23 @@
-import createMiddleware from 'next-intl/middleware'
-import { routing } from './i18n/routing'
+import { NextRequest, NextResponse } from 'next/server'
 
-const handleI18nRouting = createMiddleware(routing)
+const locales = ['ko', 'en', 'ja', 'zh', 'hi']
+const defaultLocale = 'ko'
 
-export function proxy(request: Request) {
-  return handleI18nRouting(request as Parameters<typeof handleI18nRouting>[0])
+export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // 로케일 접두사가 이미 있으면 통과
+  const hasLocale = locales.some(
+    (loc) => pathname.startsWith(`/${loc}/`) || pathname === `/${loc}`
+  )
+  if (hasLocale) return NextResponse.next()
+
+  // 없으면 기본 로케일(ko)로 리다이렉트
+  const url = request.nextUrl.clone()
+  url.pathname = `/${defaultLocale}${pathname}`
+  return NextResponse.redirect(url)
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon\\.ico|.*\\.).*)'],
 }
